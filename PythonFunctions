@@ -248,10 +248,58 @@ n_lose_money = np.sum(n_defaults >= 10)
 print('Probability of losing money = ', n_lose_money/ len(n_defaults))
 
 #### Chapter 3.3 probability distributions and stories: the Binomial distribution
+# probability mass function (PMF): the set of probabilities of discrete outcomes
+# distribution: a mathematical description of outcomes
+# match a story to a mathematical description of probabilities
+# the number r of successes in n bernoulli trials with probability p of success is Binomially distributed
+
+# a more efficient way to simulate Bernoulli trials
+# take 10000 samples out of the Bernoulli distribution: n_defaults
+n_defaults = np.random.binomial(n=100, p=0.05, size = 10000)
+x,y = ecdf(n_defaults)
+_ = plt.plot(x,y, marker = '.', linestyle='none')
+_ = plt.xlabel('number of defaults out of 100 loans')
+_ = plt.ylabel('CDF')
+plt.show()
+
+# plotting the Binomial PMF, the trick is setting up the edges of the bins to pass to plt.hist() via bins keyword
+# we want the bins centered on the integers, so the edges of the bins should be -0.5, 0.5, 1.5, 2.5, ... up to max(n_defaults) + 1.5
+bins = np.arange(0, np.max(n_defaults) + 1.5) - 0.5
+_ = plt.hist(n_defaults, normed = True, bins = bins)
+_ = plt.xlabel('number of defaults out of 100 loans')
+_ = plt.ylabel('PMF')
+plt.show()
+
+#### Chapter 3.4 Poisson processes and the Poisson distribution
+# Poisson process: the timing of the next event is completely independent of when the previous event happened
+# the number of arrivals of a Poisson process in a given amount of time is Poisson distributed
+# Poisson distribution has one parameter: the average number of arrivals in a given length of time
+# Poisson distribution is a limit of the Binomial distribution for low probability of success and large number of trials, i.e. for rare events
+# examples: 1.natural birth in a given hospital are a Poisson process 2. hits on a website
+
+# the Poisson distribution with arrival rate equal to np approximates a Binomial distribution for n Bernoulli trials with 
+# probability p of success (with n large and p small)
+# Poisson distribution with an arrival rate of 10, Binomial distribution with parameters n and p such that np=10
+samples_poisson = np.random.poisson(10, size = 10000)
+print('Poisson:  ', np.mean(samples_poisson), np.std(samples_poisson))
+
+# specifiy values of n and p to consider for Binomial: n, p 
+n = [20, 100, 1000]
+p = [0.5, 0.1, 0.01]
+for i in range(3):
+    samples_binomial = np.random.binomial(n=n[i], p = p[i], size = 10000)
+    print('n = ', n[i], 'Binom: ', np.mean(samples_binomial), np.std(samples_binomial))
+
+# the mean is 251/115, what's the probability of having 7 or more in a season
+n_nohitters = np.random.poisson(251/115, size = 10000)
+n_large = np.sum(n_nohitters >= 7)
+p_large = n_large/10000
+print('Probability of seven or more no-hitters:', p_large)
 
 
+### $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-
+#### Chapter 4: thinking probabilistically -- continuous variables
 
 
 
