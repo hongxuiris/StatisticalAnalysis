@@ -300,7 +300,39 @@ print('Probability of seven or more no-hitters:', p_large)
 ### $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 #### Chapter 4: thinking probabilistically -- continuous variables
-
-
+# probability density function (PDF):  mathematical description of the relative likelihood of observing a value of a continuous variable
+# the probability is given by the area under the PDF
 
 #goal: computing parameters and their confidence intervals, and do hypothesis tests
+
+#### Chapter 4.1 normal distribution 
+# normal distribution: it describes a continuous variable whose PDF is symmetric and has a single peak
+# it has two parameters, the mean where the center of the peak is; the standard deviation is a measure of how spread out the data are
+# the parameter mean and standard deviation of a normal distribution is different from the mean and standard deviation calculated from data
+
+# check the distribution of data: compare empirical CDF to theoretical CDF
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set()
+
+mean = np.mean(michelson_speed_of_light)
+std = np.std(michelson_speed_of_light)
+samples = np.random.normal(mean, std, size = 10000)
+x, y = ecdf(michelson_speed_of_light)
+x_theor, y_theor = ecdf(samples)
+
+_ = plt.plot(x_theor, y_theor)
+_ = plt.plot(x,y, marker = '.', linestyle = 'none')
+_ = plt.xlabel('speed of light (km/s)')
+_ = plt.ylabel('CDF')
+plt.show()
+
+
+
+
+
+
+
+
+
