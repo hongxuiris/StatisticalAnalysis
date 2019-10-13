@@ -178,22 +178,130 @@ plt.show()
 conf_int = np.percentile(bs_replicates, [2.5, 97.5])
  
 ## useful function that generates many boostrap replicates
+def bootstrap_replicate_1d(data, func):
+    return func(np.random.choice(data, size=len(data)))
+    
 def draw_bs_reps(data, func, size = 1):
     """ Draw boostrap replicates."""
+    bs_replicates = np.empty(size)
+    for i in range(size):
+        bs_replicates[i] = boostrap_replicate_1d(data, func)
+    return bs_replicates
+
+# boostrap replicates of the mean and the SEM (standard error of the mean)
+# central limit theorem: the sampling distribution of the sample means approaches a normal distribution as the sample size gets larger 
+# — no matter what the shape of the population distribution.
+# the standard deviation of the sample mean, called the standard error of the mean, or SEM is given by the standard deviation 
+# of the data divided by the square root of the number of data points.
+
+bs_replicates = draw_ba_reps(rainfall, np.mean, size = 10000)
+sem = np.std(rainfall) /np.sqrt(len(rainfall))
+print(sem)
+bs_std = np.std(bs_replicates)
+print(bs_std)
+
+_ = plt.hist(bs_replicates, bins = 50, normed = True)
+_ = plt.xlabel('mean annual rainfall (mm)')
+_ = plt.ylabel('PDF')
+plt.show()
+
+# 95% confidence interval 
+np.percentile(bs_replicates, [2.5, 97.5])
+
+###########################################
+# boostrap replicates of other statistics (variance), not necessarily Normally distributed
+bs_replicates = draw_bs_reps(rainfall, np.var, size = 10000)
+bs_replicates /= 100 # put the variance in units of square centimeters
+_ = plt.hist(bs_replicates, normed = True, bins = 50)
+_ = plt.xlabel('variance of annual rainfall (sq. cm)')
+_ = plt.ylabel('PDF')
+plt.show()  # not Normally distributed as it has a longer tail to the right
+# 95% confidence interval for the variance
+np.percentile(bs_replicates, [2.5, 97.5])
+
+###############################################
+# confidence interval on the rate of no-hitters (Poisson process: Exponentially distributed)
+# sample mean (the tau) is Normally distributed (central limit theorem)
+
+# Draw bootstrap replicates of the mean no-hitter time (equal to tau): bs_replicates
+bs_replicates = draw_bs_reps(nohitter_times, np.mean, size= 10000)
+
+# Compute the 95% confidence interval: conf_int
+conf_int = np.percentile(bs_replicates, [2.5, 97.5])
+
+# Print the confidence interval
+print('95% confidence interval =', conf_int, 'games')
+
+# Plot the histogram of the replicates
+_ = plt.hist(bs_replicates, bins=50, normed=True)
+_ = plt.xlabel(r'$\tau$ (games)')
+_ = plt.ylabel('PDF')
+plt.show()
+
+
+#### Chapter 2.3 pairs bootstrap
+# nonparametric inference: make no assumptions about the model or probability distribution underlying the data
+
+# pairs boostrap for linear regression 
+# (1) resample data in pairs
+# (2) compute slope and intercept from resampled data
+# (3) each slope and intercept is a boostrap replicate
+# (4) compute confidence intervals from percentiles of boostrap replicates
+
+inds = np.arange(len(total_votes))
+bs_inds = np.random.choice(inds, len(inds))
+bs_total_votes = total_votes[bs_inds]
+bs_dem_share = dem_share[bs_inds]
+
+bs_slope, bs_intercept = np.polyfit(bs_total_votes, bs_dem_share, 1)
+bs_slope, bs_intercept
+np.polyfit(total_votes, dem_share, 1) # fit of original
+ 
+# A function to do pairs boostrap
+def draw_bs_pairs_linreg(x, y, size=1):
+    """ perform pairs boostrap for linear regression """
+    inds = np.arange(len(x))
+    bs_slope_reps = np.empty(size)
+    bs_intercept_reps = np.empty(size)
+    for i in range(size):
+        bs_inds = np.random.choice(inds, size = len(inds))
+        bs_x, bs_y = x[bs_inds], y[bs_inds]
+        bs_slope_reps[i], bs_intercept_reps[i] = np.polyfit(bs_x, bs_y, 1)
+    return bs_slope_reps, bs_intercept_reps
     
+## Generate replicates of slope and intercept using pairs bootstrap   
+bs_slope_reps, bs_intercept_reps = draw_bs_pairs_linreg(illiteracy, fertility, size = 1000)
+# Compute and print 95% CI for slope
+print(np.percentile(bs_slope_reps, [2.5, 97.5]))
+_ = plt.hist(bs_slope_reps, bins=50, normed=True)
+_ = plt.xlabel('slope')
+_ = plt.ylabel('PDF')
+plt.show()    
+ 
+# plotting boostrap regession: plot the line you would get from each boostrap replicate of the slope and intercept (first 100)
+x = np.array([0, 100])
 
+for i in range(100):
+    _ = plt.plot(x, bs_slope_reps[i]*x + bs_intercept_reps[i], 
+                 linewidth = 0.5, alpha = 0.2, color = 'red')
+# plot the data
+_ = plt.plot(illiteracy, fertility, marker = '.', linestyle = 'none')
+_ = plt.xlabel('illiteracy')
+_ = plt.ylabel('fertility')
+plt.margins(0.02)
+plt.show()
+ 
+### $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+#### Chapter 3: introduction to hypothesis testing
 
-
-
-
-
-
-
-
-
-
-
+#### Chapter 3.1 formulating and simulating hypothesis
+ 
+ 
+ 
+ 
+ 
+ 
 
 
 
