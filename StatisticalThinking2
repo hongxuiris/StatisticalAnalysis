@@ -157,10 +157,30 @@ _ = plt.ylabel('ECDF')
 plt.show()
 
 
+#### Chapter 2.2 boostrap confidence intervals
+# a function to generate a boostrap replicate (1d: because it works on one dimentional arrays)
+def boostrap_replicte_1d(data, func):
+    """ generate boostrap replicate of 1D data. """
+    be_sample = np.random.choice(data, len(data))
+    return func(bs_sample)
+
+bs_replicates = np.empty(10000)
+for i in range(10000):
+    bs_replicates[i] = boostrap_replicate_1d(michelson_speed_of_light, np.mean)
+_ = plt.hist(bs_replicates, bins=30, normed = True) #normed = True so the total area of the bars is equal to one
+_ = plt.xlabel('mean speed of light (km/s)')
+_ = plt.ylabel('PDF')
+plt.show()
+
 # confidence interval: quantify the uncertainty about the parameter estimates
-
-
+# if we repeated measurements over and over again, p% of the observed values would lie within the p% confidence interval
+# 95% boostrap confidence interval
+conf_int = np.percentile(bs_replicates, [2.5, 97.5])
  
+## useful function that generates many boostrap replicates
+def draw_bs_reps(data, func, size = 1):
+    """ Draw boostrap replicates."""
+    
 
 
 
