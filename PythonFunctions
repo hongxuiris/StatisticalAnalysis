@@ -328,11 +328,86 @@ _ = plt.xlabel('speed of light (km/s)')
 _ = plt.ylabel('CDF')
 plt.show()
 
+# plot  Normal PDF for various values of the variance using hacker statistics 
+samples_std1 = np.random.normal(20, 1, size = 100000)
+samples_std3 = np.random.normal(20, 3, size = 100000)
+samples_std10= np.random.normal(20, 10, size= 100000)
 
+# make histograms (PDF)
+_ = plt.hist(samples_std1, normed=True, histtype = 'step', bins = 100)
+_ = plt.hist(samples_std3, normed=True, histtype = 'step', bins = 100)
+_ = plt.hist(samples_std10, normed=True, histtype = 'step', bins = 100)
 
+# make a legend, set limits and show plot
+_ = plt.legend(('std = 1', 'std = 3', 'std = 10'))
+plt.ylim(-0.01, 0.42)
+plt.show()
 
+# generate and plot the Normal CDFs
+x_std1, y_std1 = ecdf(samples_std1)
+x_std3, y_std3 = ecdf(samples_std3)
+x_std10, y_std10 = ecdf(samples_std10)
 
+_ = plt.plot(x_std1, y_std1, marker='.', linestyle = 'none')
+_ = plt.plot(x_std3, y_std3, marker='.', linestyle = 'none')
+_ = plt.plot(x_std10, y_std10, marker='.', linestyle = 'none')
+_ = plt.legend(('std = 1', 'std = 3', 'std = 10'), loc = 'lower right')
+plt.show()
 
+# Normal distribution: f(x) = 1/sigma*sqrt(2*pi)  * exp(-(x-mu)**2/2*sigma**2)
+# in practice, it is used to describe most symmetric peaked data you will encounter
+# important caveats
+# 1. often times things you may think are Normally distributed are not, to check, overlay the ECDF with a theoretical normal CDF
+# 2. important issue about Normal distribution is the lightness of its tails. The probability of being more than 4 standard deviations 
+# from the mean is very small. this means that when you are modeling data as Normally distributed, outliers are extremely unlikely.
 
+# check if data is Normally distributed
+mu = np.mean(belmont_no_outliers)
+sigma = np.std(belmont_no_outliers)
+samples = np.random.normal(mu, sigma, size = 10000)
+x_theor, y_theor = ecdf(samples)
+x,y = ecdf(belmont_no_outliers)
+_ = plt.plot(x_theor, y_theor)
+_ = plt.plot(x,y, marker='.', linestyle = 'none')
+_ = plt.xlabel('Belmont winning time (sec.)')
+_ = plt.ylabel('CDF')
+plt.show()
 
+# The theoretical CDF and the ECDF of the data suggest that the winning Belmont times are, indeed, Normally distributed. 
+# This also suggests that in the last 100 years or so, there have not been major technological or training advances that 
+# have significantly affected the speed at which horses can run this race.
 
+# what are the chances of a horse matching or beating the record of 144s
+samples = np.random.normal(mu, sigma, size = 1000000)
+prob = np.sum(samples <= 144)/1000000
+print ('Probability of matching or beating the record is: ', prob)
+
+# Exponential distribution: the amount of time between Poission process events
+# parameter: the mean waiting time
+# model the time between nuclear incidents (Poisson process)
+mean = np.mean(inter_times)
+samples = np.random.exponential(mean, size = 10000)
+x, y = ecdf(inter_times)
+x_theor, y_theor = ecdf(samples)
+_ = plt.plot(x_theor, y_theor)
+_ = plt.plot(x,y, marker = '.', linestyle = 'none')
+_ = plt.xlabel('time (days)')
+_ = plt.ylabel('CDF')
+plt.show()
+
+# simulate a story that does not have a named distribution to go along with it. 
+# what's the total waiting time for the arrival of two different Poisson processes
+
+def successive_poisson(tau1, tau2, size = 1):
+    t1 = np.random.exponential(tau1, size)
+    t2 = np.random.exponential(tau2, size)
+    return t1 + t2
+    
+    #The mean waiting time for a no-hitter is 764 games, and the mean waiting time for hitting the cycle is 715 games.
+    waiting_times = successive_poisson(764, 715, size = 100000)
+    _ = plt.hist(waiting_times, bins = 100, histtype='step', normed=True)
+    _ = plt.xlabel('Total waiting time (games)')
+    _ = plt.ylabel('PDF')
+    plt.show()
+    
+  
