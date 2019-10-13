@@ -1,1 +1,79 @@
+### $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+#### Chapter 1: parameter estimation by optimization
+
+#### Chapter 1.1 optimal parameters: parameter values that bring the model in closest agreement with the data
+# the parameters are only optimal for the right model
+# packages to do statistical inference: (1) scipy.stats, (2) statsmodels, (3) hacker statistics with NumPy
+
+# finding the optimal parameters by computing the mean and standard deviation from the data
+import numpy as np
+import matplotlib.pyplot as plt
+mean = np.mean(michelson_speed_of_light)
+std = np.std(michelson_speed_of_light)
+samples = np.random.normal(mean, std, size = 10000)
+
+# how often do we get no-hitters
+# nohitter_times: times between no hitters (Poisson process) is exponentially distributed. parameter is time interval tau
+np.random.seed(42)
+tau = np.mean(nohitter_times)
+inter_nohitter_time = np.random.exponential(tau, 100000)
+#plot the PDF
+_ = plt.hist(inter_nohitter_time, normed = True, histtype='step', bins = 50)
+_ = plt.xlabel('Games between no-hitters')
+_ = plt.ylabel('PDF')
+plt.show()
+
+# how is this data optimal? compare with parameter 2*tau and 1/2*tau
+plt.plot(x_theor, y_theor)
+plt.plot(x,y, marker = '.', linestyle = 'none')
+plt.margins(0.02)
+plt.xlabel('Games between no-hitters')
+plt.ylabel('CDF')
+
+samples_half = np.random.exponential(tau/2, size = 100000)
+samples_double = np.random.exponential(2*tau, size = 100000)
+x_half, y_half = ecdf(samples_half)
+x_double, y_double = ecdf(samples_double)
+_ = plt.plot(x_half, y_half)
+_ = plt.plot(x_double, y_double)
+plt.show()   # the value of tau given by the mean matches the data best, tau is an optimal paramter
+
+#### Chapter 1.2 linear regression by least squares
+# sometimes two variables are related, Pearson correlation coefficient
+# a fuller understanding of how the data are related to each other: some underlying function gives the data its shape
+# linear regression: use a linear function to describe the relations between variables
+# parameters: 
+# slope - the slope sets how steep the line is. 
+# intercept - the intercept sets where the line crosses the y-axis
+
+# optimal parameter: choose the slope and intercept such that the data points collectively lie as close as possible to the regression line
+# residual: the vertical distance between the data point and the regression line
+# least squares: the process of finding the parameters for which the sum of the squares of the residual is minimal
+
+slope, intercept = np.polyfit(total_votes, dem_share, 1) # x, y, the degree of the polynomial you wish to fit (for linear function, it's 1)
+#slope: we get 'slope' more y for every 1 unit of increase in x
+
+# exercise: the correlation between illiteracy and fertility (average # of children born per woman)
+# step 1: EDA - scatter plot and pearson correlation coefficient
+
+_ = plt.plot(illiteracy, fertility, marker = '.', linestyle = 'none')
+plt.margins(0.02)
+_ = plt.xlabel('percent illiterate')
+_ = plt.ylabel('fertility')
+plt.show()
+
+print(pearson_r(illiteracy, fertility))
+
+
+
+
+
+
+
+
+
+
+
+
 
