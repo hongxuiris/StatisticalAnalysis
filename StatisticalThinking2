@@ -113,7 +113,7 @@ plt.ylabel('sum of square of residuals')
 plt.show()
 
 
-#### Chapter 1.1 **** Do graphical EDA first (after getting data imported and cleaned)****
+#### Chapter 1.3 **** Do graphical EDA first (after getting data imported and cleaned)****
 # any outliers: look into what is causing that outlier
 # x is not spreaded across the range: try to acquire more data for intermediate x values
 # nonlinear relations: linear model does not fit, choose nonlinear models
@@ -194,7 +194,7 @@ def draw_bs_reps(data, func, size = 1):
 # the standard deviation of the sample mean, called the standard error of the mean, or SEM is given by the standard deviation 
 # of the data divided by the square root of the number of data points.
 
-bs_replicates = draw_ba_reps(rainfall, np.mean, size = 10000)
+bs_replicates = draw_bs_reps(rainfall, np.mean, size = 10000)
 sem = np.std(rainfall) /np.sqrt(len(rainfall))
 print(sem)
 bs_std = np.std(bs_replicates)
