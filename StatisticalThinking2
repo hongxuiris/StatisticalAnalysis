@@ -591,7 +591,84 @@ print('p-value =', p)
 #### Chapter 5: putting it all together: a case study
 
 #### Chapter 5.1 Finch beaks and the need for statistics
+# graphical and quantitative EDA
+# parameter estimation
+# confidence interval calculation
+# hypothesis testing
 
+# how the beak depth of G.scandens has changed over time?
+# (1) EDA of beak depths in 1975 and 2012
+# (2) parameter estimates of mean beak depth
+# (3) hypothesis test: did the beaks get deeper?
+
+### (1) EDA
+# Create bee swarm plot
+_ = sns.swarmplot('year', 'beak_depth', data =df)
+_ = plt.xlabel('year')
+_ = plt.ylabel('beak depth (mm)')
+plt.show()
+
+# ECDFs of beak depths. While bee swarm plots are useful, we found that ECDFs are often even better when doing EDA.
+# Compute ECDFs
+x_1975, y_1975 = ecdf(bd_1975)
+x_2012, y_2012 = ecdf(bd_2012)
+
+# Plot the ECDFs
+_ = plt.plot(x_1975, y_1975, marker='.', linestyle='none')
+_ = plt.plot(x_2012, y_2012, marker='.', linestyle='none')
+
+plt.margins(0.02)
+_ = plt.xlabel('beak depth (mm)')
+_ = plt.ylabel('ECDF')
+_ = plt.legend(('1975', '2012'), loc='lower right')
+plt.show()  # the differences are much clearer in the ECDF
+
+### (2) Parameter estimates of beak depths
+# Estimate the difference of the mean beak depth of the G. scandens samples from 1975 and 2012 and report a 95% confidence interval.
+# Compute the difference of the sample means: mean_diff
+mean_diff = np.mean(bd_2012) - np.mean(bd_1975)
+
+# Get bootstrap replicates of means
+bs_replicates_1975 = draw_bs_reps(bd_1975, np.mean, size = 10000)
+bs_replicates_2012 = draw_bs_reps(bd_2012, np.mean, size = 10000)
+
+# Compute samples of difference of means: bs_diff_replicates
+bs_diff_replicates = bs_replicates_2012 - bs_replicates_1975
+
+# Compute 95% confidence interval: conf_int
+conf_int = np.percentile(bs_diff_replicates, [2.5, 97.5])
+
+# Print the results
+print('difference of means =', mean_diff, 'mm')
+print('95% confidence interval =', conf_int, 'mm')
+
+### (3) Hypothesis test: Are beaks deeper in 2012?
+# Be careful! The hypothesis we are testing is not that the beak depths come from the same distribution. For that we could use a 
+# permutation test. The hypothesis is that the means are equal. To perform this hypothesis test, we need to shift the two data sets 
+# so that they have the same mean and then use bootstrap sampling to compute the difference of means.
+
+# Compute mean of combined data set: combined_mean
+combined_mean = np.mean(np.concatenate((bd_1975, bd_2012)))
+
+# Shift the samples
+bd_1975_shifted = bd_1975 - np.mean(bd_1975) + combined_mean
+bd_2012_shifted = bd_2012 - np.mean(bd_2012) + combined_mean
+
+# Get bootstrap replicates of shifted data sets
+bs_replicates_1975 = draw_bs_reps(bd_1975_shifted, np.mean, size = 10000)
+bs_replicates_2012 = draw_bs_reps(bd_2012_shifted, np.mean, size = 10000)
+
+# Compute replicates of difference of means: bs_diff_replicates
+bs_diff_replicates =  bs_replicates_2012 - bs_replicates_1975
+
+# Compute the p-value
+p = np.sum(bs_diff_replicates >= mean_diff) / len(bs_diff_replicates)
+
+# Print p-value
+print('p =', p)
+
+
+#### Chapter 5.2 Variation of beak shapes
 
 
 
