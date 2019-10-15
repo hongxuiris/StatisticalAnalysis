@@ -669,6 +669,164 @@ print('p =', p)
 
 
 #### Chapter 5.2 Variation of beak shapes
+# How beak length and depth change togather, linear regression
+
+# EDA of beak length and depth
+# Make scatter plot of 1975 data
+_ = plt.plot(bl_1975, bd_1975, marker='.', linestyle='none', color='blue', alpha = 0.5)
+
+# Make scatter plot of 2012 data
+_ = plt.plot(bl_2012, bd_2012, marker='.', linestyle='none', color='red', alpha=0.5)
+
+_ = plt.xlabel('beak length (mm)')
+_ = plt.ylabel('beak depth (mm)')
+_ = plt.legend(('1975', '2012'), loc='upper left')
+plt.show()
+
+#### Linear regressions
+# Compute the linear regressions
+slope_1975, intercept_1975 = np.polyfit(bl_1975, bd_1975, 1)
+slope_2012, intercept_2012 = np.polyfit(bl_2012, bd_2012, 1)
+
+# Perform pairs bootstrap for the linear regressions
+bs_slope_reps_1975, bs_intercept_reps_1975 = draw_bs_pairs_linreg(bl_1975, bd_1975, size = 1000)
+bs_slope_reps_2012, bs_intercept_reps_2012 = draw_bs_pairs_linreg(bl_2012, bd_2012, size = 1000)
+
+# Compute confidence intervals of slopes
+slope_conf_int_1975 = np.percentile(bs_slope_reps_1975, [2.5, 97.5])
+slope_conf_int_2012 = np.percentile(bs_slope_reps_2012, [2.5, 97.5])
+intercept_conf_int_1975 = np.percentile(bs_intercept_reps_1975, [2.5, 97.5])
+intercept_conf_int_2012 = np.percentile(bs_intercept_reps_2012, [2.5, 97.5])
+
+# Print the results
+print('1975: slope =', slope_1975, 'conf int =', slope_conf_int_1975)
+print('1975: intercept =', intercept_1975, 'conf int =', intercept_conf_int_1975)
+print('2012: slope =', slope_2012, 'conf int =', slope_conf_int_2012)
+print('2012: intercept =', intercept_2012, 'conf int =', intercept_conf_int_2012)
+
+###  Displaying the linear regression results
+# Make scatter plot of 1975 data
+_ = plt.plot(bl_1975, bd_1975, marker='.', linestyle='none', color='blue', alpha=0.5)
+
+# Make scatter plot of 2012 data
+_ = plt.plot(bl_2012, bd_2012, marker='.', linestyle='none', color='red', alpha=0.5)
+
+# Label axes and make legend
+_ = plt.xlabel('beak length (mm)')
+_ = plt.ylabel('beak depth (mm)')
+_ = plt.legend(('1975', '2012'), loc='upper left')
+
+# Generate x-values for bootstrap lines: x
+x = np.array([10, 17])
+
+# Plot the bootstrap lines
+for i in range(100):
+    plt.plot(x, bs_slope_reps_1975[i]*x + bs_intercept_reps_1975[i], linewidth=0.5, alpha=0.2, color='blue')
+    plt.plot(x, bs_slope_reps_2012[i]*x + bs_intercept_reps_2012[i], linewidth=0.5, alpha=0.2, color='red')
+
+plt.show()
+
+
+## Beak length to depth ratio
+# The linear regressions showed interesting information about the beak geometry. The slope was the same in 1975 and 2012, suggesting 
+# that for every millimeter gained in beak length, the birds gained about half a millimeter in depth in both years. However, if we 
+# are interested in the shape of the beak, we want to compare the ratio of beak length to beak depth.
+
+# Compute length-to-depth ratios
+ratio_1975 = bl_1975/bd_1975
+ratio_2012 = bl_2012/bd_2012
+
+# Compute means
+mean_ratio_1975 = np.mean(ratio_1975)
+mean_ratio_2012 = np.mean(ratio_2012)
+
+# Generate bootstrap replicates of the means
+bs_replicates_1975 = draw_bs_reps(ratio_1975, np.mean, size = 10000)
+bs_replicates_2012 = draw_bs_reps(ratio_2012, np.mean, size = 10000)
+
+# Compute the 99% confidence intervals
+conf_int_1975 = np.percentile(bs_replicates_1975, [0.5, 99.5])
+conf_int_2012 = np.percentile(bs_replicates_2012, [0.5, 99.5])
+
+# Print the results
+print('1975: mean ratio =', mean_ratio_1975, 'conf int =', conf_int_1975)
+print('2012: mean ratio =', mean_ratio_2012, 'conf int =', conf_int_2012)
+
+# The mean beak length-to-depth ratio decreased by about 0.1, or 7%, from 1975 to 2012. The 99% confidence intervals are not even 
+# close to overlapping, so this is a real change. The beak shape changed.
+
+
+#### Chapter 5.3 calculation of heredity (how strongly parental traits are passed on to offspring)
+# Heredity: the tendency for parental traits to be inherited by offspring
+
+# investigate the extent to which parental beak depth is inherited by offspring in both scandens and fortis
+
+###  EDA of heritability
+# Make scatter plots
+_ = plt.plot(bd_parent_fortis, bd_offspring_fortis, marker='.', linestyle='none', color='blue', alpha=0.5)
+_ = plt.plot(bd_parent_scandens, bd_offspring_scandens, marker='.', linestyle='none', color='red', alpha=0.5)
+
+_ = plt.xlabel('parental beak depth (mm)')
+_ = plt.ylabel('offspring beak depth (mm)')
+_ = plt.legend(('G. fortis', 'G. scandens'), loc='lower right')
+plt.show()
+
+### Correlation of offspring and parental data
+# test statistic: Pearson correlation coefficient
+# To get confidence intervals on this, we need to do a pairs bootstrap.
+
+def draw_bs_pairs(x, y, func, size=1):
+    """Perform pairs bootstrap for a single statistic."""
+
+    # Set up array of indices to sample from: inds
+    inds = np.arange(len(x))
+
+    # Initialize replicates: bs_replicates
+    bs_replicates = np.empty(size)
+
+    # Generate replicates
+    for i in range(size):
+        bs_inds = np.random.choice(inds, size=len(inds))
+        bs_x, bs_y = x[bs_inds], y[bs_inds]
+        bs_replicates[i] = func(bs_x, bs_y)
+
+    return bs_replicates
+
+# Pearson correlation of offspring and parental data
+# The Pearson correlation coefficient seems like a useful measure of how strongly the beak depth of parents are inherited by their offspring.
+
+# Compute the Pearson correlation coefficients
+r_scandens = pearson_r(bd_parent_scandens, bd_offspring_scandens)
+r_fortis = pearson_r(bd_parent_fortis, bd_offspring_fortis)
+
+# Acquire 1000 bootstrap replicates of Pearson r
+bs_replicates_scandens = draw_bs_pairs(bd_parent_scandens, bd_offspring_scandens, pearson_r, 1000)
+bs_replicates_fortis = draw_bs_pairs(bd_parent_fortis, bd_offspring_fortis, pearson_r, 1000)
+
+# Compute 95% confidence intervals
+conf_int_scandens = np.percentile(bs_replicates_scandens, [2.5, 97.5])
+conf_int_fortis = np.percentile(bs_replicates_fortis, [2.5, 97.5])
+
+# Print results
+print('G. scandens:', r_scandens, conf_int_scandens)
+print('G. fortis:', r_fortis, conf_int_fortis)
+
+# G. scandens: 0.4117063629401258 [0.26564228 0.54388972]
+# G. fortis: 0.7283412395518487 [0.6694112  0.77840616]
+# It is clear from the confidence intervals that beak depth of the offspring of G. fortis parents is more strongly correlated with 
+# their offspring than their G. scandens counterparts.
+
+### Measuring heritability
+
+
+
+
+
+
+
+
+
+
 
 
 
