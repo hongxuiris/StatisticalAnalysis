@@ -145,7 +145,7 @@ np.random.choice([1,2,3,4,5], size = 5)
 bs_sample = np.random.choice(michelson_speed_of_light, size = 100)
 
 # visuallize boostrap sample with ECDF to get an idea of how the data is distributed
-for _ in range(5):
+for _ in range(50):
     ba_sample = np.random.choice(rainfall, size = len(rainfall))
     x,y = ecdf(bs_sample)
     _ = plt.plot(x, y, marker = '.', linestyle = 'none', color = 'gray', alpha = 0.1)
