@@ -151,13 +151,17 @@ def get_power(n, p1, p2, cl):
                                      # "percent point function" (ppf) is a terrible name. Most people in statistics just use "quantile function".
     diff = abs(p2-p1)
     
-ppf(q, loc=0, scale=1)  # Percent point function (inverse of cdf — percentiles)    
+# ppf(q, loc=0, scale=1)  # Percent point function (inverse of cdf — percentiles)  it's Z score for standard normal  
+# from scipy.stats import norm
+# norm.ppf(.5)  # half of the mass is before zero
+# 0.0
 
+#The equivalent of the R pnorm() function is: scipy.stats.norm.cdf() with python 
+#The equivalent of the R qnorm() function is: scipy.stats.norm.ppf() with python
 
-
-
-
-
+pnorm
+The function pnorm returns the integral from −∞ to q of the pdf of the normal distribution where q is a Z-score. Try to guess the value of pnorm(0). (pnorm has the same default mean and sd arguments as dnorm).
+pnorm(0) # 0.5
 
 
 
