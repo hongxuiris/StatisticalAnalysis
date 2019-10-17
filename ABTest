@@ -314,10 +314,32 @@ plt.axvline(x=np.mean(variant_results_rollup['purchase']), color = 'red')
 plt.axvline(x=np.mean(control_results_rollup['purchase']), color = 'green')
 plt.show()
 
-## plot the distribution using histogram
+## plot the distribution using estimated means and variances
 
+mean_control = 0.090965
+mean_test = 0.102005
+var_control = (mean_control * (1- mean_control))/58583
+var_test = (mean_test * (1- mean_test))/56350
+control_line = np.linspace(-3 * var_control**0.5 + mean_control, 3 * var_control**0.5 + mean_control, 100)
+test_line = np.linspace(-3 * var_test**0.5 + mean_test, 3 * var_test**0.5 + mean_test, 100)
+plt.plot(control_line, stats.norm.pdf(control_line, mean_control, var_control**0.5))
+plt.plot(test_line, stats.norm.pdf(test_line, mean_test, var_test**0.5))
+plt.show()
 
+# plotting the difference of distributions
+lift = mean_test - mean_control
+var = var_test + var_control
+diff_line = np.linspace(-3 * var**0.5 + lift, 3 * var**0.5 + lift, 100)
+plt.plot(diff_line, stats.norm.pdf(diff_line, lift, var**0.5))
+plt.show()
 
+# plot the confidence interval
+# coloring the regions between the bounds of the CI
+# generate a set of points in this region (np.arrange())
+section = np.arange(0.007624, 0.01445, 1.0/10000)
+plt.fill_between(section, stats.norm.pdf(section, lift, var**0.5))
+plt.plot(diff_line, stats.norm.pdf(diff_line, lift, var**0.5))
+plt.show()
 
 
 
