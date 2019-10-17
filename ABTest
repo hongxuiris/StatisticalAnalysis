@@ -20,17 +20,76 @@
 # experience + domain knowledge: what's likely to be an important driver of the business
 # exploratory data analysis: uncover relationships that reveal which metrics truly measure these drivers
 
+# example: medication app
+# services: 1. paid subscription 2. one-off in-app purchase
+# goals/KPI: maintain high conversion rate
+# additionally we want to maintain strength in a variety of other business areas as well
+
+import pandas as pd
+# load customer demographics
+customer_demographics = pd.read_csv('customer_demographics.csv')
+print(customer_demographics.head())
+
+# load customer subscriptions (user actions)
+customer_subscriptions = pd.read_csv('customer_subscriptions.csv')
+print(customer_subscriptions.head())
+
+## focus on the KPI of conversion rate (will consider a variety of others)
+# one question in defining KPI: over what interval should we consider the conversion rate?
+# one way to decide is to see the generalizability of these statistics across different demographic groups
+#  * stable, generalizable KPIs are better than custom KPIs. stability is desired so we don't need custom KPIs for each breakdown
+# second is to see if one is more correlated with important factors like retention or spending than the others
+# pd.merge(df1, df2) or df1.merge(df2)
+sub_data_demo = customer_demographics.merge(customer_subscriptions, how = 'inner', on = ['uid'])  ## inner, outer, left, right
+sub_data_demo.head()
+# aggregate combined dataset to calculate potential KPIs
+
+## exercises : Loading & examining our data
+# user demographics and a set of data relating to in-app purchases for our meditation app.
+
+# Import pandas 
+import pandas as pd
+
+# Load the customer_data
+customer_data = pd.read_csv('customer_data.csv')
+# Load the app_purchases
+app_purchases = pd.read_csv('inapp_purchases.csv')
+
+# Print the columns of customer data
+print(customer_data.columns)
+# Print the columns of app_purchases
+print(app_purchases.columns)
+
+# Merge on the 'uid' and 'date' field
+uid_date_combined_data = app_purchases.merge(customer_data, on=['uid', 'date'], how='inner')
+
+# Examine the results 
+print(uid_date_combined_data.head())
+print(len(uid_date_combined_data))
 
 
+######## chapter 1.2 exploratory analysis if KPIs
+# which conversion rate metric is the most appropriate
+# most company will have many KPIs, each serving a different purpose. conversion rate is just one KPI
+# calculating KPI and measure performance across different groups
+# DataFrame.groupby(by =None, axis=0, level=None, as_index=True, sort=True, group_keys=True, squeeze=False, **kwargs)
+# DataFrame.agg(func, axis =0, *args, **kwargs)
 
+sub_data_grp = sub_data_demo.groupby(by = ['country', 'device'], axis=0, as_index=False)
+sub_data_grp.price.mean()
+sub_data_grp.price.agg('mean')
+sub_data_grp.price.agg(['mean', 'median'])
+sub_data_grp.agg({'price': ['mean', 'min', 'max'], 'age': ['mean', 'min', 'max']})
 
-
-
-
-
-
-
-
+# custom functions, removes the top and bottom ten percent of values before calculating the mean
+def truncated_mean(data):
+    top_val = data.quantile(0.9)
+    bot_val = data.quantile(0.1)
+    trunc_data = data[(data <= top_val) & (data >= bot_val)]
+    mean = trunc_data.mean()
+    return(mean)
+    
+sub_data_grp.agg({'age':[truncated_mean]})    # no quotation marks for custom functions
 
 
 
