@@ -203,3 +203,91 @@ conversion_rate = (sum(purchase_data.purchase) / purchase_data.purchase.count())
 p2 = conversion_rate * (1 + 0.1)
 sample_size = get_sample_size(0.95, conversion_rate, p2, 0.90)
 print(sample_size)
+
+
+
+#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+# chapter 4 analyzing A/B testing results
+
+# chapter 4.1  analyzing the A/B test results
+
+# test results
+test_demographics = pd.read_csv('test_demographics.csv')
+test_results = pd.read_csv('ab_test_results.csv')
+test_results.date = pd.to_datetime(test_results.date)
+test_results.head(n=5)
+
+# confirming test results : to confirm that our test was administered correctly (ensure the data is sufficiently random)
+# compare the size of control and variant group
+test_results_grpd = test_results.groupby(by = ['group'], as_index = False)
+test_results_grpd.uid.count()
+
+# break out by the relevant demographics
+test_results_demo = test_results.merge(test_demo, how = 'inner', on = 'uid')
+test_results_grpd = test_results_demo.groupby(by = ['country', 'gender', 'device', 'group'], as_index = False)
+test_results_grpd.uid.count()
+
+# finding the test & control group conversion rates
+test_results_grpd = test_results_demo.groupby(by = ['group'], as_index = False)
+test_results_summary = test_results_grpd.agg({'purchase': ['count', 'sum']})
+test_results_summary['conv'] = (test_results_summary.purchase['sum']/test_results_summary.purchase['count'])
+
+# determine whether the difference (in conversion rate) is statistically significant? by calculating P-value
+# P-value: probability under null hypothesis of obtaining a result as or more extreme than the one observed
+# represents a measure of the evidence against retaining the null hypothesis
+
+# Find the unique users in each group 
+results = ab_test_results.groupby('group').agg({'uid': pd.Series.nunique}) 
+
+# Find the overall number of unique users using "len" and "unique"
+unique_users = len(ab_test_results.uid.unique()) 
+
+# Find the percentage in each group
+results = results / unique_users * 100
+print(results)  # about 50% each group
+
+# Find the unique users in each group, by device and gender
+results = ab_test_results.groupby(by=['group', 'device', 'gender']).agg({'uid': pd.Series.nunique}) 
+
+# Find the overall number of unique users using "len" and "unique"
+unique_users = len(ab_test_results.uid.unique())
+
+# Find the percentage in each group
+results = results / unique_users * 100
+print(results) 
+
+def get_pvalue(con_conv, test_conv, con_size, test_size):
+    lift = -abs(test_conv - con_conv)
+    var1 = con_conv * (1-con_conv) * (1.0/con_size)
+    var2 = test_conv * (1-test_conv) * (1.0/test_size)
+    sd = (var1+var2)**0.5
+    p_value = 2*stats.norm.cdf(lift, loc=0, scale = sd)
+    return p_value
+    
+## finding the test power
+get_power(test_size, con_conv, test_conv, 0.95)
+    
+## calculating confidence intervals for our estimate
+def get_ci(lift, alpha, sd):
+    val=abs(stats.norm.ppf(1-alpha/2))
+    lwr_bnd = lift - val*sd
+    upr_bnd = lift + val*sd
+    return_val = (lwr_bnd, upr_bnd)
+    return return_val
+
+lift= test_conv - con_conv
+var1 = con_conv * (1-con_conv) * (1.0/con_size)
+var2 = test_conv * (1-test_conv) * (1.0/test_size)
+sd = (var1+var2)**0.5
+
+get_ci(lift, 0.05, sd)
+
+
+
+
+
+    
+    
+    
+
