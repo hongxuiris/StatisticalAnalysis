@@ -145,12 +145,33 @@ print(se)
 # as confidence level goes up, power goes down
 
 ## sample size function 
+
+from scipy import stats
+
 def get_power(n, p1, p2, cl):
     alpha = 1-cl
-    qu = stats.norm.ppf(1 - alpha/2) # scipy.stats.norm.ppf compute the inverse of the CDF of the standard normal distribution 
-                                     # "percent point function" (ppf) is a terrible name. Most people in statistics just use "quantile function".
+    qu = stats.norm.ppf(1 - alpha/2) 
+    # scipy.stats.norm.ppf compute the inverse of the CDF of the standard normal distribution
+    # "percent point function" (ppf) is a terrible name. Most people in statistics just use "quantile function".
     diff = abs(p2-p1)
+    se = np.sqrt((p1*(1-p1)+p2*(1-p2))/n)
+    beta = stats.norm.cdf(qu*se, diff, se)
+    return 1-beta
     
+def get_sample_size(power, p1, p2, cl, max_n=1000000):
+    n=1
+    while n <= max_n:
+        tmp_power = get_power(n, p1,p2, cl)
+        if tmp_power >=power:
+            return n
+        else:
+            n= n+1  # n = n+100
+        
+        
+conversion_rate = 0.03468
+sample_size_per_group = get_sample_size(0.8, conversion_rate, conversion_rate*1.1, 0.95)
+print(sample_size_per_group) #45794 VS (45788)
+
 # ppf(q, loc=0, scale=1)  # Percent point function (inverse of cdf — percentiles)  it's Z score for standard normal  
 # from scipy.stats import norm
 # norm.ppf(.5)  # half of the mass is before zero
@@ -159,12 +180,26 @@ def get_power(n, p1, p2, cl):
 #The equivalent of the R pnorm() function is: scipy.stats.norm.cdf() with python 
 #The equivalent of the R qnorm() function is: scipy.stats.norm.ppf() with python
 
-pnorm
-The function pnorm returns the integral from −∞ to q of the pdf of the normal distribution where q is a Z-score. Try to guess the value of pnorm(0). (pnorm has the same default mean and sd arguments as dnorm).
-pnorm(0) # 0.5
+#The function pnorm returns the integral from −∞ to q of the pdf of the normal distribution where q is a Z-score. 
+#Try to guess the value of pnorm(0). (pnorm has the same default mean and sd arguments as dnorm).
+#pnorm(0) # 0.5
 
 
+###### ways to decrease the needed sample size
+# 1. switch the unit of observation in a way that reduces variability in the data,for instance switch from revenue to conversion rate
+# 2. exclude users who are irrelevant to the process
 
+#decreasing our confidence level has a slightly larger impact on the power than increasing our sample size
 
+# Merge the demographics and purchase data to only include paywall views
+purchase_data = demographics_data.merge(paywall_views, how='inner', on=['uid'])
+                            
+# Find the conversion rate
+conversion_rate = (sum(purchase_data.purchase) / purchase_data.purchase.count())
 
-
+# Desired Power: 0.95
+# CL 0.90
+# Percent Lift: 0.1
+p2 = conversion_rate * (1 + 0.1)
+sample_size = get_sample_size(0.95, conversion_rate, p2, 0.90)
+print(sample_size)
