@@ -155,7 +155,7 @@ conv_sub_data = sub_data_demo[(sub_data_demo.lapse_date < max_lapse_date)]
 # find number of days between subscription and lapse date if subscribed
 # ... and pd.NaT otherwise
 sub_time = np.where(conv_sub_data.subscription_date.notnull(), (conv_sub_data.subscription_date - \
-           conv_sub_data.lapse_date).dt.days, pd.NaT)
+           conv_sub_data.lapse_date).dt.days, pd.NaN)
 conv_sub_data['sub_time'] = sub_time
 
 # gcr7(), gcr14: conversion rates over 7 and 14 days
@@ -163,20 +163,76 @@ def gcr7(sub_time):
     return sum(sub_time <= 7) / sub_time.count()
 
 # form cohorts
+purchase_cohorts = conv_sub_data.groupby(by = ['gender, 'device'], as_index=False)
+# find group conversion rate for each cohort using gcr7, gcr14
+purchase_cohorts.agg({sub_time: [gcr7m gcr14]})    
+# similar converdion rates between chorts which is good   
 
-    
-    
+### how to choose KPI metrics
+# 1. consider how long it takes (monthly conversion rate: impractical to wait for a month on an actionable time scale)
+# 2. use exploratory data analysis to reveal relationships between metrics and key results
+# 3. explore ties to business metrics
+
+# KPI need to be important. for instance conversion rate is important because it could potentially serve as a warning of potential 
+# problems later on
+# check how does it evolve over time?
+# measuring KPI across groups is crucial because changes can impact groups in drastically different ways
+
+## exercise: Calculating KPIs - average amount paid per purchase within a user's first 28 days
+# Compute max_purchase_date
+max_purchase_date = current_date - timedelta(days=28)
+
+# Filter to only include users who registered before our max date
+purchase_data_filt = purchase_data[purchase_data.reg_date < max_purchase_date]
+
+# Filter to contain only purchases within the first 28 days of registration
+purchase_data_filt = purchase_data_filt[(purchase_data_filt.date <= 
+                        purchase_data_filt.reg_date + timedelta(days=28))]
+
+# Output the mean price paid per purchase
+print(purchase_data_filt.price.mean()) # 414 cents
+# The average price is 414 cents which is below $4.99 it seems that our purchasers tend towards the lower priced set of options.
+
+### Average purchase price by cohort
+
+# Set the max registration date to be one month before today
+max_reg_date = current_date - timedelta(days=28)
+
+# Find the month 1 values
+month1 = np.where((purchase_data.reg_date < max_reg_date) &
+                 (purchase_data.date < purchase_data.reg_date + timedelta(days=28)),
+                  purchase_data.price, np.NaN)
+                 
+# Update the value in the DataFrame
+purchase_data['month1'] = month1
+
+# Group the data by gender and device 
+# We can calculate these metrics across a set of cohorts and see what differences emerge. 
+# This is a useful task as it can help us understand how behaviors vary across cohorts.
+purchase_data_upd = purchase_data.groupby(by=['gender', 'device'], as_index=False) 
+
+# Aggregate the month1 and price data 
+purchase_summary = purchase_data_upd.agg(
+                        {'month1': ['mean', 'median'],
+                        'price': ['mean', 'median']})  # price: let's look at these metrics not limited to 28 days to compare.
+
+# Examine the results 
+print(purchase_summary) # This value seems relatively stable over the past 28 days
 
 
+#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+# chapter 2 exploring and visualizing customer behavior
 
-
-
-
-
-
-
-
+# chapter 2.1 EDA and time series data to uncover trends in KPI
+current_date = pd.to_datetime('2018-03-17')
+max_lapse_date = current_date - timedelta(days=14)
+conv_sub_data = sub_data_demo[(sub_data_demo.lapse_date < max_lapse_date)]
+sub_time = np.where(conv_sub_data.subscription_date.notnull(), (conv_sub_data.subscription_date - \
+           conv_sub_data.lapse_date).dt.days, pd.NaN) #.dt.days convert to integer rather than the unit of days
+conv_sub_data['sub_time'] = sub_time
+# not subscribed in week one 
+conv_base = conv_sub_data[(conv_sub_data.sub_time)]
 
 
 
