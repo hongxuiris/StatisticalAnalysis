@@ -91,6 +91,90 @@ def truncated_mean(data):
     
 sub_data_grp.agg({'age':[truncated_mean]})    # no quotation marks for custom functions
 
+# exploring the in-app purchase data in more detail.
+# examine the results to get an understanding of the overall data
+
+# Calculate the mean and median of price and age
+purchase_summary = purchase_data.agg({'price': ['mean', 'median'], 'age': ['mean', 'median']})
+# Examine the output 
+# mean is higher than the median? This suggests that we have some users who are making a lot of purchases!
+print(purchase_summary)
+
+# calculate a set of summary statistics about the purchase data broken out by 'device' (Android or iOS) and 'gender' (Male or Female).
+# Following this, you'll compare the values across these subsets, which will give you a baseline for these values as potential 
+# KPIs to optimize going forward.
+
+# These values provide a great summary of the customer data which will be useful as you move to optimizing the conversion rate.
+# Group the data 
+grouped_purchase_data = purchase_data.groupby(by = ['device', 'gender'])
+
+# Aggregate the data
+purchase_summary = grouped_purchase_data.agg({'price': ['mean', 'median', 'std']})
+
+# Examine the results
+print(purchase_summary)
+
+
+######## chapter 1.3 calculating KPIs - a practical example
+# comparing KPIs "user conversion rate" after free trial ends
+# 1. first week after the trial ends
+
+import numpy as np
+from datetime import datetime, timedelta
+current_date = pd.to_datetime('2018-03-17')
+# "lapse date" = date that the trial ended
+print(sub_data_demo.lapse_date.max())  #'2018-03-17'
+
+# remove users whose lapse date with 7 days
+max_lapse_date = current_date - timedelta(days=7)
+# restrict to users lapsed before max_lapse_date
+conv_sub_data = sub_data_demo[(sub_data_demo.lapse_date < max_lapse_date)]
+# count the users
+total_users_count = conv_sub_data.price.count()
+print(total_users_count)
+
+# latest subscription date: within 7 days of lapsing
+max_sub_date = conv_sub_data.lapse_date + timedelta(days = 7)
+
+# filter the users with non-zero subscription price and who subscribed before max_sub_date
+total_subs = conv_sub_data[(conv_sub_data.price > 0) & (conv_sub_data.subscription_date <= max_sub_date)]
+
+# count the users
+total_subs_count = total_subs.price.count()
+print(total_subs_count)
+
+conversion_rate = total_subs_count/total_users_count
+print(conversion_rate) #0.2325
+
+### check week one and week two conversion rates across different cohorts
+max_lapse_date = current_date - timedelta(days=14)
+# restrict to users lapsed before max_lapse_date
+#conv_sub_data_7days = conv_sub_data.copy()
+conv_sub_data = sub_data_demo[(sub_data_demo.lapse_date < max_lapse_date)]
+
+# find number of days between subscription and lapse date if subscribed
+# ... and pd.NaT otherwise
+sub_time = np.where(conv_sub_data.subscription_date.notnull(), (conv_sub_data.subscription_date - \
+           conv_sub_data.lapse_date).dt.days, pd.NaT)
+conv_sub_data['sub_time'] = sub_time
+
+# gcr7(), gcr14: conversion rates over 7 and 14 days
+def gcr7(sub_time):
+    return sum(sub_time <= 7) / sub_time.count()
+
+# form cohorts
+
+    
+    
+
+
+
+
+
+
+
+
+
 
 
 
