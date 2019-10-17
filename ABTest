@@ -264,7 +264,10 @@ def get_pvalue(con_conv, test_conv, con_size, test_size):
     sd = (var1+var2)**0.5
     p_value = 2*stats.norm.cdf(lift, loc=0, scale = sd)
     return p_value
-    
+ 
+# a large lift makes us confident in our observed result, while a small sample size makes us less so, and ultimately high 
+# variance can lead to a high p-value!
+
 ## finding the test power
 get_power(test_size, con_conv, test_conv, 0.95)
     
@@ -283,11 +286,42 @@ sd = (var1+var2)**0.5
 
 get_ci(lift, 0.05, sd)
 
+# As our standard deviation decreases so too does the width of our confidence interval. 
+# our interval is very narrow thanks to our substantial lift (difference) and large sample size.
+
+# chapter 4.2 interpeting your test results
+# communicating your test results
+
+############  what to report: use a table
+#                    test group        control group
+#sample size              7030               6970
+#run time               2 weeks             2 weeks
+#mean                    3.12                2.69
+#variance                3.20                2.64
+#estimated lift: 0.56*
+#confidence interval: 0.56 +/- 0.4
+#* significant at the 0.05 level
+
+########### visulize result
+# histogram of data, for instance you can provide a histogram of the conversion rates for each user, for test and control to compare
+
+variant_results_rollup = test_results_rollup[test_results_rollup.group == 'V']
+control_results_rollup = test_results_rollup[test_results_rollup.group == 'C']
+plt.hist(variant_results_rollup['purchase'], color = 'yellow', alpha = 0.8, bins = 50, label = 'Test')       
+plt.hist(control_results_rollup['purchase'], color = 'blue', alpha = 0.8, bins = 50, label = 'Control')    
+plt.legend(loc='upper right')
+plt.axvline(x=np.mean(variant_results_rollup['purchase']), color = 'red')
+plt.axvline(x=np.mean(control_results_rollup['purchase']), color = 'green')
+plt.show()
+
+## plot the distribution using histogram
 
 
 
 
-    
-    
-    
+
+
+
+
+
 
