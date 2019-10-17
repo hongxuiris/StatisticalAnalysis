@@ -7,7 +7,7 @@
 # running the test in real world, no guessing
 # provide accurate answers quickly
 # allows companies to rapidly iterate on ideas
-# a statistically sound way to establish causal relationships
+# a statistically sound way to establish causal relationships (Randomness helps ensure nothing else is impacting our observed results.)
 
 # where can A/B test be used? users + ideas --> A/B test
 # test impact of drugs
