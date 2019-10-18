@@ -400,6 +400,74 @@ conversion_data.columns = conversion_data.columns.droplevel(level=1)
 conversion_data.plot()
 plt.show()
 
+## limiting our view (to look at the most recent 6 months)
+current_date = pd.to_datetime('2018-03-17')
+start_date = current_date - timedelta(days = (6*28))
+conv_filter = ((conversion_data.lapse_date >= start_date) & (conversion_data.lapse_date <= current_date))
+conversion_data_filt = conversion_data[conv_filter]
+conversion_data_filt.plot(x='lapse_date', y='sub_time')
+plt.show() # there is a drop 
+
+#### is this trend impact overall or perticular segment
+# segmenting our graph
+# by country
+conv_filter = ((conv_sub_data.lapse_date >= start_date) & (conv_sub_data.lapse_date <= current_date))
+conv_data = conv_sub_data[conv_filter]
+conv_data_cntry = conv_data.groupby(by = ['lapse_date', 'country'], as_index = False)
+conv_data_cntry = conv_data_cntry.agg({'sub_time': [gcr7]})
+conv_data_cntry.columns = conv_data_cntry.columns.droplevel(level=1)
+conv_data_cntry = pd.pivot_table(conv_data_cntry, values=['sub_time'], columns = ['country'], index = ['lapse_date'], fill_value=0
+conv_data_cntry.columns = conv_data_cntry.columns.droplevel(level=0)
+conv_data_cntry.reset_index(inplace = True)
+conv_data_cntry.plot(x='lapse_date', y=['USA', 'CAN', 'FRA', 'BRA', 'TUR', 'DEU'])
+plt.show()
+
+# then by device
+conv_filter = ((conv_sub_data.lapse_date >= start_date) & (conv_sub_data.lapse_date <= current_date))
+conv_data = conv_sub_data[conv_filter]
+conv_data_dev = conv_data.groupby(by = ['lapse_date', 'device'], as_index = False)
+conv_data_dev = conv_data_dev.agg({'sub_time': [gcr7]})
+conv_data_dev.columns = conv_data_dev.columns.droplevel(level=1)
+conv_data_dev = pd.pivot_table(conv_data_dev, values=['sub_time'], columns = ['device'], index = ['lapse_date'], fill_value=0
+conv_data_dev.columns = conv_data_dev.columns.droplevel(level=0)
+conv_data_dev.reset_index(inplace = True)
+conv_data_dev.plot(x='lapse_date', y=['iOS', 'and'])
+plt.show()
+
+## adding annotations: events (holidays) and releases (software releases)
+events = pd.read_csv('events.csv')
+events.head()
+releases = pd.read_csv('releases.csv')
+
+## Plotting Annotations: overlay to our main plot
+conv_data_dev.plot(x='lapse_date', y=['iOS', 'and'])
+events.Date = pd.to_datetime(events.Date)
+for row in events.iterrows():
+    tmp = row[1]
+    plt.axvline(x=tmp.Date, color='k', linestyle = '--')
+
+# release annotation
+releases.Date = pd.to_datetime(releases.Date)
+for row in releases.iterrows():
+    tmp = row[1]
+    if tmp.Event == 'iOS Release':
+        plt.axvline(x=tmp.Date, color='b', linestyle = '--')
+    else:
+        plt.axvline(x=tmp.Date, color='b', linestyle = '--') 
+plt.show()
+
+### exercise -- Visualizing user spending 
+# monitor the company revenue. Additionally, the product team believes that some of these changes may impact female users more than 
+# male users. plot the monthly revenue for one of the updated products and evaluate the results.
+# Pivot user_revenue
+pivoted_data = pd.pivot_table(user_revenue, values ='revenue', columns=['device', 'gender'], index='month')
+pivoted_data = pivoted_data[1:(len(pivoted_data) -1 )]  
+#Remove the first and last row of the DataFrame once pivoted to prevent discontinuities from distorting the results. 
+
+# Create and show the plot
+pivoted_data.plot()
+plt.show()
+
 
 
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
