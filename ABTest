@@ -225,14 +225,180 @@ print(purchase_summary) # This value seems relatively stable over the past 28 da
 # chapter 2 exploring and visualizing customer behavior
 
 # chapter 2.1 EDA and time series data to uncover trends in KPI
+# look at the evolution of KPI over time or time based KPIs
+
 current_date = pd.to_datetime('2018-03-17')
 max_lapse_date = current_date - timedelta(days=14)
 conv_sub_data = sub_data_demo[(sub_data_demo.lapse_date < max_lapse_date)]
 sub_time = np.where(conv_sub_data.subscription_date.notnull(), (conv_sub_data.subscription_date - \
            conv_sub_data.lapse_date).dt.days, pd.NaN) #.dt.days convert to integer rather than the unit of days
 conv_sub_data['sub_time'] = sub_time
-# not subscribed in week one 
-conv_base = conv_sub_data[(conv_sub_data.sub_time)]
+# not subscribed in week one (sub_time > 7 or not subscribed yet )
+conv_base = conv_sub_data[(conv_sub_data.sub_time.notnull()) | (conv_sub_data.sub_time >7) ]
+total_users = len(conv_base)
+total_subs = np.where(conv_base.sub_time.notnull() & (conv_base.sub_time <=14), 1, 0)
+total_subs = sum(total_subs)
+conversion_rate = total_subs / total_users
+
+# pasring date
+pd.read_csv("data.csv", parse_dates=True, infer_datetime_format = True)
+pd.to_datime(arg, errors = 'raise', ..., format=None, )
+
+# strftime
+# 1993-01-27 -- "%Y-%m-%d"
+# 05/13/2017 05:45:37 -- "%m/%d/%Y %H:%M:%S"
+# September 01, 2017 -- "%B %d, %Y"
+# Saturday January 27, 2017 -- '%A %B %d, %Y'
+# 2016 March 01 01:56 --"%Y %B %d %H:%M"
+date_data_one = pd.to_datetime(date_data_one, format='%A %B %d, %Y')
+print(date_data_one)
+
+#### chapter 2.1 creating time series graphs with matplotlib
+
+# conversion rate over time, monitoring the impact of changes
+current_date = pd.to_datetime('2018-03-17')
+max_lapse_date = current_date - timedelta(days=7)
+conv_sub_data = sub_data_demo[(sub_data_demo.lapse_date < max_lapse_date)]
+sub_time = np.where(conv_sub_data.subscription_date.notnull(), (conv_sub_data.subscription_date - \
+           conv_sub_data.lapse_date).dt.days, pd.NaN) #.dt.days convert to integer rather than the unit of days
+conv_sub_data['sub_time'] = sub_time
+
+conversion_data = conv_sub_data.groupby(by = ['lapse_date'], as_index=False)
+conversion_data = conversion_data.agg({'sub_time':[gcr7]})
+conversion_data.columns = conversion_data.columns.droplevel(level=1)
+conversion_data.head() # week one conversion rate by registration date
+
+# plot daily one-week conversion rate
+conversion_data.lapse_date = pd.to_datetime(conversion_data.lapse_date) # 'sub_time' is conversion rate
+conversion_data.plot(x='lapse_date', y = 'sub_time')
+plt.show()
+
+## further segmenting time series graphs can provide insight into whether these changes are impacting all users equally
+# or different cohorts in different ways (splitting by coountry and device)
+
+conversion_data = conv_sub_data.groupby(by = ['lapse_date', 'country'], as_index=False)
+reformatted_cntry_data = pd.pivot_table(conversion_data, values = ['sub_time'], columns = ['country'], index = ['reg_date'], fill_value=0)
+reformatted_cntry_data.columns = reformatted_cntry_data.columns.droplevel(level=[0])
+reformatted_cntry_data.reset_index(inplace=True)
+reformatted_cntry_data.head()
+reformatted_cntry_data.plot(x='reg_date', y = ['BRA', 'FRA', 'DEU', 'TUR'])
+plt.show()
+
+### Plotting time series data: check how price change impact on the number of purchases made by purchasing users during their first week.
+# 'first_week_purchases' : 1/0 then converted to the average number of purchases made per day by users in their first week.
+# Group the data and aggregate first_week_purchases
+user_purchases = user_purchases.groupby(by=['reg_date', 'uid']).agg({'first_week_purchases': ['sum']})
+
+# Reset the indexes
+user_purchases.columns = user_purchases.columns.droplevel(level=1)
+user_purchases.reset_index(inplace=True)
+
+# Find the average number of purchases per day by first-week users
+user_purchases = user_purchases.groupby(by=['reg_date']).agg({'first_week_purchases': ['mean']})
+user_purchases.columns = user_purchases.columns.droplevel(level=1)
+user_purchases.reset_index(inplace=True)
+
+# Plot the results
+user_purchases.plot(x='reg_date', y='first_week_purchases')
+plt.show()
+
+######### segment by country 
+country_pivot = pd.pivot_table(user_purchases_country, values=['first_week_purchases'], columns=['country'], index=['reg_date'])
+print(country_pivot.head())
+# Plot the average first week purchases for each country by registration date
+country_pivot.plot(x='reg_date', y=['USA', 'CAN', 'FRA', 'BRA', 'TUR', 'DEU'])
+plt.show()
+
+### techniques to uncover the trends
+# subscribers per day
+usa_subscriptions = pd.read_csv("usa_subscriptions.csv", parse_dates = True, infer_datetime_format=True)
+usa_subscriptions['sub_day'] = (usa_subscriptions.sub_date - usa_subscriptions.lapse_date).dt.days
+usa_subscriptions = usa_subscriptions[usa_subscriptions.sub_day <=7]
+usa_subscriptions = usa_subscriptions.groupby(by = ['sub_date'], as_index = False)
+usa_subscriptions = usa_subscriptions.agg({'subs':['sum']})
+usa_subscriptions.columns = usa_subscriptions.columns.droplevel(level=[1])
+usa_subscriptions.head()
+usa_subscriptions.plot(x='sub_date', y='subs')
+plt.show()
+
+#### chapter 2.2 correct seasonality using trailing average, remove data noise by exponential moving average
+
+## seasonality: there is weekly seasonality. seasonality obfuscate macro-level trends
+###################  to correct: calculating a trailing average over the data
+## trailing average is a smoothing technique that sets the value for a given day as the average over the past n-days
+# to smooth weekly seasonality we want n equals 7 (average over a week, limiting the day level effects)
+rolling_subs = usa_subscriptions.subs.rolling(window = 7, center = False)
+rolling_subs = rolling_subs.mean()
+usa_subscriptions['rolling_subs'] = rolling_subs
+usa_subscriptions.tail()
+usa_subscriptions.plot(x='sub_date', y='rolling_subs') ## xlabel, ylabel
+plt.show()
+
+############## noisy data: to correct: exponential moving averages to check any macro trends are hidden among the noise
+### exponential moving average weights the points such that the earlier ones are weighted less than the more recent ones within the window.
+
+# purchase per day
+high_sku_purchases = pd.read_csv('high_sku_purchases.csv', parse_dates=True, infer_datetime_format = True)
+high_sku_purchases.plot(x='date', y='purchases')
+plt.show()
+exp_mean = high_sku_purchases.purchases.ewm(span=30)  
+# span to specify window size, determining window size requires prior knowledge of the structure of the data or some trial and error
+exp_mean = exp_mean.mean()
+high_sku_purchases['exp_mean'] = exp_mean
+high_sku_purchases.plot(x='date', y='exp_mean')
+plt.show()
+
+
+### Seasonality and moving averages: is purchase grow lead to revenue growth (need to remove revenue seasonality to reveal the trend)
+# Compute 7_day_rev
+daily_revenue['7_day_rev'] = daily_revenue.revenue.rolling(window=7,center=False).mean()
+
+# Compute 28_day_rev
+daily_revenue['28_day_rev'] = daily_revenue.revenue.rolling(window=28,center=False).mean()
+    
+# Compute 365_day_rev
+daily_revenue['365_day_rev'] = daily_revenue.revenue.rolling(window=365,center=False).mean()
+    
+# Plot date, and revenue, along with the 3 rolling functions (in order)    
+daily_revenue.plot(x='date', y=['revenue', '7_day_rev', '28_day_rev', '365_day_rev', ])
+plt.show()
+
+##Exponential rolling average & over/under smoothing
+# our revenue is somewhat flat over time (shown by trailing average). why this is the case?
+# look at a single product to see if this potentially reveals any trends.
+# As this will have less data then looking at our overall revenue it will be much noisier. 
+# To account for this we will smooth the data using an exponential rolling average.
+
+# Calculate 'small_scale'
+daily_revenue['small_scale'] = daily_revenue.revenue.ewm(span=10).mean()
+
+# Calculate 'medium_scale'
+daily_revenue['medium_scale'] = daily_revenue.revenue.ewm(span=100).mean()
+
+# Calculate 'large_scale'
+daily_revenue['large_scale'] = daily_revenue.revenue.ewm(span=500).mean()
+
+# Plot 'date' on the x-axis and, our three averages and 'revenue'
+# on the y-axis
+daily_revenue.plot(x = 'date', y =['revenue', 'small_scale', 'medium_scale', 'large_scale'])
+plt.show()
+
+
+
+#### chapter 2.3 exploratory data analysis with time series data
+# drop in new user retention 
+current_date = pd.to_datetime('2018-03-17')
+max_lapse_date = current_date - timedelta(days=7)
+conv_sub_data = sub_data_demo[(sub_data_demo.lapse_date < max_lapse_date)]
+sub_time = np.where(conv_sub_data.subscription_date.notnull(), (conv_sub_data.subscription_date - \
+           conv_sub_data.lapse_date).dt.days, pd.NaN) #.dt.days convert to integer rather than the unit of days
+conv_sub_data['sub_time'] = sub_time
+
+conversion_data = conv_sub_data.groupby(by = ['lapse_date'], as_index=False)
+conversion_data = conversion_data.agg({'sub_time':[gcr7]})
+conversion_data.columns = conversion_data.columns.droplevel(level=1)
+conversion_data.plot()
+plt.show()
 
 
 
