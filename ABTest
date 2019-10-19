@@ -160,13 +160,13 @@ conv_sub_data['sub_time'] = sub_time
 
 # gcr7(), gcr14: conversion rates over 7 and 14 days
 def gcr7(sub_time):
-    return sum(sub_time <= 7) / sub_time.count()
+    return sum(sub_time <= 7) / len(sub_time) # sub_time.count() number of not null values
 
 # form cohorts
 purchase_cohorts = conv_sub_data.groupby(by = ['gender, 'device'], as_index=False)
 # find group conversion rate for each cohort using gcr7, gcr14
-purchase_cohorts.agg({sub_time: [gcr7m gcr14]})    
-# similar converdion rates between chorts which is good   
+purchase_cohorts.agg({sub_time: [gcr7m, gcr14]})    
+# similar convertion rates between cohorts which is good   
 
 ### how to choose KPI metrics
 # 1. consider how long it takes (monthly conversion rate: impractical to wait for a month on an actionable time scale)
