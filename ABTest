@@ -8,7 +8,7 @@
 # (the ideas are not totally different ideas, it's different versions for the same feature, or different values for the same variable)
 # empirically better not only require the difference is statistically significant but practically significant.
 
-# it has the following (2)4 features
+# it has the following (2)4 characteristics
 # (1) running the test in real world, no guessing
 # a statistically sound way to establish causal relationships (Randomness helps ensure nothing else is impacting our observed results.)
 # (2) provide accurate answers quickly
