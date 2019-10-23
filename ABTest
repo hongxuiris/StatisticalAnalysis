@@ -1,13 +1,18 @@
 
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-# chapter 1 key performace indicators (KPI): measuring business success
+# chapter 1 key performance indicators (KPI): measuring business success
 
-# A/B testing: test two or more different ideas against each other, see which one empirically performs better
-# running the test in real world, no guessing
-# provide accurate answers quickly
-# allows companies to rapidly iterate on ideas
+# A/B testing: it's a data-driven way businesses take to test two or more different ideas against each other, to see which one 
+# empirically performs better on their busineess (measured with key performance indicator or KPI)
+# (the ideas are not totally different ideas, it's different versions for the same feature, or different values for the same variable)
+# empirically better not only require the difference is statistically significant but practically significant.
+
+# it has the following (2)4 features
+# (1) running the test in real world, no guessing
 # a statistically sound way to establish causal relationships (Randomness helps ensure nothing else is impacting our observed results.)
+# (2) provide accurate answers quickly
+# allows companies to rapidly iterate on ideas
 
 # where can A/B test be used? users + ideas --> A/B test
 # test impact of drugs
