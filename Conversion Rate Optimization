@@ -1,0 +1,68 @@
+https://medium.com/elfsight-blog/how-to-run-a-b-testing-a-checklist-youll-want-to-bookmark-99c75aa9860b
+How to Do A/B Testing: A Checklist You’ll Want to Bookmark
+
+Here’s a couple of goals that you could try to achieve:
+Decrease the bounce rate
+Increase the average time spent on page
+Convert blog readers into customers or subscribers
+Convert social media followers into customers
+Decrease cart abandonment rate
+Reduce page loading time
+Improve your landing pages performance
+
+A/B Testing vs Multivariate Testing
+A/B testing and multivariate testing (MVT) are not the same thing.
+When doing an A/B test, you compare several variations of a single element at a time and pick out the best. A/B tests can be performed 
+at different levels — you can test different colors of the CTA button or two different landing pages. These tests deliver reliable data 
+very quickly, as they do not require a large amount of traffic to run. A/B testing is best used to measure the impact of 2–4 variables 
+on interactions with the page.
+During the multivariate testing, you test many variables simultaneously.
+MVT combines several A/B tests conducted at the same time. It compares a higher number of variables and reveals more information 
+about how these variables interact with one another. The purpose of an MVT is to measure the effectiveness of multiple variables 
+combinations.
+
+Essential Tips for Effective A/B Testing
+Before you start testing, consider the following tips.
+(1) Test One Asset At a Time
+Let’s say that your ad is not performing well. To learn why you need to do A/B tests —was it the wrong audience, the visual, 
+the ad’s text or maybe all of them? If you conduct multivariate testing, you won’t be able to recognize the issue — too many 
+factors will muddle your results. The only solution here is to A/B test each element separately.
+(2) Test Minor Changes
+When it comes to ads and websites, changes to small things often bring big improvements. The positioning of the lead-capture forms, 
+the color of the CTA button — every little thing matters. Consider testing email forms, colors, fonts, designs of CTA buttons as 
+variables — you will be amazed by the results!
+“Experimentation is the engine that drives innovation. Experiments show us, with scientific rigor, what works and what doesn’t work“ 
+— Prof. Stefan Thomke, Harvard Business School
+(3) Conduct High-Level Testing
+Let’s say you decided to rebuild one of the landing pages from scratch. You’ve got two landing pages at hand and you want to learn 
+if the new one performs better. Testing large elements against each other is a high-level approach to the A/B testing. If you test 
+the same page with several changes applied you won’t be able to recognize which work out better or draw any other conclusions.
+(4) Mind the Metrics
+While A/B testing, you need to pay attention to how it affects the sales metrics such as visits, leads, click-through rates, 
+traffic-to-lead conversion rates, demo requests and more. It is possible that a landing page that converted fewer prospects 
+produced more sales.
+(5) Decide What to Test
+Break up your webpages, marketing materials, ads into elements that might affect the conversions — CTAs, email forms, design, 
+wording, layouts, etc — and run A/B tests on them. Mind other factors like different target audiences, the timing of promotions, etc.
+(6) Create Equal Conditions
+To get statistically significant results, you need to create equal testing conditions — equal audience groups, identical timing, etc. 
+If run on the different time of the day or months, A/B tests are most likely to be influenced by these factors.
+
+A/B Testing Examples
+You may feel the need to improve your landing pages and other marketing-related elements, but you might feel overwhelmed by the 
+number of possible variables to test. Not all of them influence your sales figures so you need to focus on those that matter. 
+Most often these include landing pages, emails, CTAs, and ads.
+
+Landing Page Split Testing
+Landing pages contain several elements that are subject to testing.
+(1) Offers. Learn which offerings help you push leads down the sales funnel and have the most conversion — sales, demos, ebooks, 
+webinars, coupons, etc.
+(2) Texts. Make sure that your offer descriptions are convincing, easy-to-grasp, and have all questions covered.
+(3) Form fields. Request email address only or ask for more information? On one hand, form fields help you qualify leads and nurture 
+them. But some marketers say that the more fields there are in your form, the lower your visitor-to-customer conversion rate is going 
+to be.
+(4) Whole page. A/B testing of the entire landing pages is the fastest way to learn which ones drive more conversions. 
+After that, it’s reasonable to test low-level elements such as forms, CTAs and more.
+
+
+
